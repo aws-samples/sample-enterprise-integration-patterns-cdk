@@ -1,0 +1,39 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript build output
+# Scoped to the tsconfig outDir on purpose. A bare `*.js` / `*.d.ts` would also
+# ignore any JavaScript Lambda handler asset added under lib/, silently leaving it
+# out of the repo.
+dist/
+*.tsbuildinfo
+
+# CDK
+cdk.out/
+cdk.context.json
+.cdk.staging/
+
+# Test artifacts
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Do NOT ignore .kiro/ or .claude/ — the skill and agent are shipped with the repo
+# so a clone works in Kiro and Claude Code with no setup. They are generated from
+# skills/ and agents/ by `npm run sync:agents`; `npm run check:agents` guards drift.
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local

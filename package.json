@@ -1,0 +1,71 @@
+{
+  "name": "aws-enterprise-integration-patterns",
+  "version": "1.0.0",
+  "description": "AWS CDK constructs for Enterprise Integration Patterns",
+  "license": "Apache-2.0",
+  "author": "Amazon Web Services",
+  "keywords": [
+    "aws",
+    "cdk",
+    "aws-cdk",
+    "enterprise-integration-patterns",
+    "eip",
+    "serverless",
+    "integration",
+    "eventbridge",
+    "step-functions",
+    "biztalk-migration",
+    "mulesoft-migration"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aws-samples/enterprise-integration-on-aws-v2-cdk-constructs.git"
+  },
+  "homepage": "https://github.com/aws-samples/enterprise-integration-on-aws-v2-cdk-constructs#readme",
+  "bugs": {
+    "url": "https://github.com/aws-samples/enterprise-integration-on-aws-v2-cdk-constructs/issues"
+  },
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "files": [
+    "dist/lib/**/*.js",
+    "dist/lib/**/*.d.ts",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "test": "jest --testPathPattern=test/unit",
+    "test:integ": "jest --testPathPattern=test/integ --runInBand",
+    "test:all": "jest",
+    "test:coverage": "jest --testPathPattern=test/unit --coverage",
+    "sync:agents": "node scripts/sync-agent-config.mjs",
+    "check:agents": "node scripts/sync-agent-config.mjs --check",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "peerDependencies": {
+    "aws-cdk-lib": "^2.170.0",
+    "constructs": "^10.0.0"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.682.0",
+    "@aws-sdk/client-sfn": "^3.682.0",
+    "@aws-sdk/client-sns": "^3.682.0",
+    "@aws-sdk/client-sqs": "^3.682.0",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.0.0",
+    "aws-cdk": "^2.170.0",
+    "aws-cdk-lib": "2.266.0",
+    "constructs": "10.8.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.0"
+  }
+}
