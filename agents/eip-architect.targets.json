@@ -1,0 +1,41 @@
+{
+  "$comment": [
+    "Tool-specific projections for the eip-architect agent.",
+    "The name, description and system prompt come from eip-architect.md — do not duplicate them here.",
+    "Run `npm run sync:agents` after editing this file.",
+    "`model` is deliberately omitted from both targets so each tool uses its session default.",
+    "Pinning a model ID here would go stale and may not be available on every user's plan."
+  ],
+  "claude": {
+    "tools": ["Read", "Grep", "Glob", "Edit", "Write", "Bash", "Skill"]
+  },
+  "kiro": {
+    "tools": ["read", "write", "shell"],
+    "allowedTools": ["read"],
+    "resources": [
+      "file://README.md",
+      "file://lib/index.ts"
+    ],
+    "permissions": {
+      "rules": [
+        { "capability": "fs_read", "match": ["**"], "effect": "allow" },
+        {
+          "capability": "fs_write",
+          "match": ["lib/**", "test/**", "bin/**", "*.md"],
+          "effect": "allow"
+        },
+        {
+          "capability": "shell",
+          "match": ["npm run *", "npm test*", "npx cdk *", "npx tsc*", "git status", "git diff*"],
+          "effect": "allow"
+        },
+        {
+          "capability": "shell",
+          "match": ["rm -rf *", "sudo *", "npx cdk deploy*", "npx cdk destroy*", "git push*"],
+          "effect": "deny"
+        }
+      ]
+    },
+    "welcomeMessage": "EIP architect ready. Describe the integration you need and I will classify it, pick the construct, and wire it up. Or ask me to audit an existing design against the anti-pattern guardrails."
+  }
+}

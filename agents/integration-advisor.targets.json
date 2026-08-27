@@ -1,0 +1,52 @@
+{
+  "$comment": [
+    "Tool-specific projections for the integration-advisor agent.",
+    "The name, description and system prompt come from integration-advisor.md — do not duplicate them here.",
+    "Run `npm run sync:agents` after editing this file.",
+    "No `skill` field is set in integration-advisor.md, which is deliberate: the sync script then",
+    "preloads every skill, so this agent gets both integration-discovery and eip-cdk-patterns.",
+    "`model` is deliberately omitted so each tool uses its session default.",
+    "This agent is read-mostly by design. fs_write is scoped to documentation and assessment output",
+    "only — implementation belongs to eip-architect, which can write lib/, test/ and bin/.",
+    "Shell allows are narrow and non-mutating on purpose. Unlike eip-architect, there is no broad",
+    "`npx cdk *` allow, so the deploy/destroy denies below cannot be reached by a wider rule."
+  ],
+  "claude": {
+    "tools": ["Read", "Grep", "Glob", "Write", "Skill"]
+  },
+  "kiro": {
+    "tools": ["read", "write", "shell"],
+    "allowedTools": ["read"],
+    "resources": [
+      "file://README.md",
+      "file://lib/index.ts",
+      "file://lib/types.ts"
+    ],
+    "permissions": {
+      "rules": [
+        { "capability": "fs_read", "match": ["**"], "effect": "allow" },
+        {
+          "capability": "fs_write",
+          "match": ["docs/**", "assessments/**", "*.md"],
+          "effect": "allow"
+        },
+        {
+          "capability": "fs_write",
+          "match": ["lib/**", "test/**", "bin/**", "package.json", "scripts/**"],
+          "effect": "deny"
+        },
+        {
+          "capability": "shell",
+          "match": ["npm run build", "npm test*", "npx cdk synth*", "npx cdk ls*", "git status", "git diff*"],
+          "effect": "allow"
+        },
+        {
+          "capability": "shell",
+          "match": ["rm -rf *", "sudo *", "npx cdk deploy*", "npx cdk destroy*", "npx cdk bootstrap*", "git push*", "git commit*"],
+          "effect": "deny"
+        }
+      ]
+    },
+    "welcomeMessage": "Welcome. This library has 29 CDK constructs, each implementing one Enterprise Integration Pattern end to end — channels, compute, state, IAM and dead-letter queues already wired. You bring the handler code.\n\nI can help you three ways:\n\n1. **Assess an estate** — tell me what you run today (BizTalk, MuleSoft, Boomi, TIBCO, Informatica, Workato, or hand-rolled) and I'll map your interfaces to constructs and AWS services.\n2. **Design one interface** — describe it in your own platform's terms and I'll classify it, pick the construct, and sketch the config.\n3. **Review a design** — show me what you've planned or built and I'll audit it against the anti-pattern guardrails.\n\nWhere would you like to start? If you're not sure, option 2 with your most representative interface is the fastest way to see how this works."
+  }
+}

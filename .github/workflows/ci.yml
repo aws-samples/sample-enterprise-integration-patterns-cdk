@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Fails if .kiro/ or .claude/ drifted from the canonical skills/ and agents/ sources.
+      - name: Check agent config is in sync
+        run: npm run check:agents
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test
