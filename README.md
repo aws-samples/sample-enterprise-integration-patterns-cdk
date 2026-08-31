@@ -2,6 +2,26 @@
 
 Declarative AWS CDK constructs implementing the canonical [Enterprise Integration Patterns](https://www.enterpriseintegrationpatterns.com/) (Hohpe & Woolf). Deploy production-ready messaging architectures with a single construct declaration.
 
+The library packages 29 canonical integration patterns as reusable L3 constructs — pub/sub, request-reply,
+content-based routing, scatter-gather, splitter, aggregator, resequencer, saga (choreographed and
+orchestrated), claim check, outbox, idempotent receiver, circuit breaker, throttling, managed file
+transfer and more. Each construct wires the underlying AWS services (EventBridge, SNS, SQS, Step
+Functions, Lambda, Kinesis, DynamoDB, AppSync, Amazon MQ, Transfer Family) with dead-letter queues,
+retries, encryption and least-privilege IAM already in place, so you declare the pattern rather than
+assemble the plumbing.
+
+It is aimed at teams replacing legacy middleware — BizTalk, MuleSoft, Boomi, TIBCO, Informatica,
+Workato — or standardising a sprawl of hand-rolled integrations onto one reviewed set of building
+blocks. Patterns compose: a file-based interface is usually `FileTransfer` plus `MessageTranslator`
+plus `Splitter`, not one bespoke stack.
+
+Alongside the constructs, the repo ships an agent-led discovery pathway: two Agent Skills and two
+custom agents that let a coding assistant run the engagement with you. `integration-advisor` asks the
+discovery questions, maps each of your existing interfaces to a construct, and writes an assessment
+file; `eip-architect` picks that assessment up and writes the CDK against the real props interfaces.
+See [Use with an AI coding agent](#use-with-an-ai-coding-agent) — it works from a plain clone, with no
+install or configuration step.
+
 ## Quick Start
 
 ```bash
@@ -60,6 +80,26 @@ config, so it works from the actual API surface rather than a copy that can drif
 
 The advisor hands off to the architect when discovery is done, so going through both in order is the
 normal path rather than a detour.
+
+### Running the two agents in order
+
+The normal engagement is a two-step relay, with a file as the baton:
+
+1. **Run `integration-advisor` first.** Describe your estate or one interface in your own platform's
+   terms. The advisor asks its staged questions, maps each interface to a construct, and ends the
+   session by writing the interface assessment to `assessments/<name>.md`. That file — not the chat
+   transcript — is the handoff artifact.
+2. **Then run `eip-architect`.** It checks `assessments/` and `docs/` at the start of a session and
+   treats the assessment table as confirmed requirements, so it goes straight to configuration
+   instead of re-asking discovery questions. It only reopens a row that carries an open question.
+
+If you start with the architect and your requirement is still in legacy vocabulary with no
+assessment on disk, it will send you back to step 1 rather than guess the mapping.
+
+If your team cannot adopt CDK, the architect can still help: it will synthesize the configured
+construct to a plain CloudFormation template via `npx cdk synth`, or walk you through the construct
+source as a blueprint for a Terraform implementation — flagging in both cases that the export is a
+fork that stops receiving library updates.
 
 ### What discovery looks like
 

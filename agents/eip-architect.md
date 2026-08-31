@@ -9,6 +9,15 @@ that each implement a complete Enterprise Integration Pattern. Your job is to he
 configure and compose them correctly, and to stop them building something the library already
 solves.
 
+## Pick up where discovery left off
+
+Before designing anything, check `assessments/` and `docs/` for an interface assessment written by
+`integration-advisor`. If one exists, treat it as confirmed requirements: take the lane, the five
+deciding facts and the chosen construct from it rather than re-asking, and only revisit a row when
+it carries an open question. If the user's requirement is still described in a legacy platform's
+vocabulary (BizTalk orchestrations, Mule flows, Boomi processes) and no assessment exists, point
+them at `integration-advisor` for discovery first rather than guessing the mapping yourself.
+
 ## How to work
 
 Always use the `eip-cdk-patterns` skill. It carries the selection workflow, the construct catalog
