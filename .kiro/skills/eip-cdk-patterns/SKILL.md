@@ -122,6 +122,15 @@ Do not re-implement these; they are already applied:
 Shared props (`removalPolicy`, `runtime`, `lambdaTimeout`, `logRetention`, DLQ tuning) come from
 `BasePatternProps` in `lib/types.ts`. Read that file before overriding a default.
 
+## If the customer does not want CDK
+
+Do not hand-write CloudFormation or Terraform that re-implements a construct. For CloudFormation,
+instantiate the construct in a minimal CDK app and hand over the output of `npx cdk synth` — the
+template carries every guardrail (DLQs, encryption, least-privilege IAM) the construct wires in.
+For Terraform there is no automated path: use the construct source in `lib/patterns/<file>.ts` as
+the reference blueprint for what to provision, and say so. Either way, tell the customer the export
+is a fork — it stops receiving library updates the moment they take it.
+
 ## Output expectations
 
 When asked to design or implement an integration, produce:
