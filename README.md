@@ -101,6 +101,56 @@ construct to a plain CloudFormation template via `npx cdk synth`, or walk you th
 source as a blueprint for a Terraform implementation — flagging in both cases that the export is a
 fork that stops receiving library updates.
 
+### What you end up with
+
+Two artifacts, both on disk rather than in the chat transcript.
+
+**From the advisor — `assessments/<name>.md`.** The filled-in
+[interface assessment template](skills/integration-discovery/references/interface-assessment-template.md).
+It is written to be reviewable by someone who was not in the session:
+
+- a portfolio summary — platform, migration driver, interface counts by lane, systems that cannot
+  move, AWS readiness, who will operate it
+- portfolio groups, so an estate of 180 orchestrations collapses to a handful of representative
+  interfaces rather than 180 investigations
+- per interface, the five deciding facts (trigger, payload size, volume, latency, ordering) each
+  with the consequence it drove, plus the three hidden requirements legacy middleware obscures
+- the chosen construct, supporting constructs and AWS services underneath
+- anti-patterns found, including ones being carried over from the current platform, with the failure
+  mode named
+- gaps where this library stops and what you must add yourself
+- open questions, each naming the exact missing fact and what it blocks
+- a recommended build sequence ordered by risk, and the cross-cutting work that gets missed in
+  estimates — DLQ alarms, `RemovalPolicy.RETAIN` overrides, CMK strategy, handler code for every
+  transformation, CDK enablement
+
+**From the architect — CDK in the repo.** Construct declarations in `bin/app.ts`, any supporting code
+in `lib/`, and tests in `test/`. It runs `npm run build` and `npm test` and only reports the change
+complete when both pass.
+
+`assessments/` does not exist in a fresh clone; the advisor creates it during the session, so it will
+show up as an untracked directory afterwards. Commit it if you want the mapping reviewed and
+circulated, or add it to `.gitignore` if the engagement detail should stay local.
+
+### Getting from there to deployed
+
+The architect deliberately cannot deploy — `npx cdk deploy` and `npx cdk destroy` are on its deny
+list (`agents/eip-architect.targets.json`), along with `git push` and `rm -rf`. It designs and builds;
+you keep the deploy decision. So the last step is yours:
+
+```bash
+npm run build
+npm test
+npx cdk synth
+npx cdk deploy
+```
+
+Before a production cutover, work the cross-cutting table in the assessment rather than deploying
+straight off the back of a green test run. The constructs default to `RemovalPolicy.DESTROY` and
+create no CloudWatch alarms, so at minimum you need `RETAIN` on archives, DLQs and state tables, and
+alarms on DLQ depth and Lambda errors. The advisor is instructed to raise these; the assessment file
+is where they are recorded.
+
 ### What discovery looks like
 
 The advisor asks a batch of questions rather than interrogating you one at a time, and it will not

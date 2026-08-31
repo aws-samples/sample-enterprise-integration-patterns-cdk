@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Fail fast rather than burning a full runner hour if the job wedges.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -25,5 +27,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # jest.config.ts sets maxWorkers: 4. Each worker loads its own aws-cdk-lib and
+      # synthesizes CloudFormation, which the config's own comment notes will exhaust a
+      # 16 GB machine. A GitHub ubuntu-latest runner is 4 vCPU / 16 GB, so the default
+      # config is exactly the case that OOMs: the runner stops responding partway through
+      # and the job dies with "The operation was canceled" and no failing assertion.
+      # Halve the parallelism and recycle any worker that balloons.
       - name: Unit tests
-        run: npm test
+        run: npm test -- --maxWorkers=2 --workerIdleMemoryLimit=2G
