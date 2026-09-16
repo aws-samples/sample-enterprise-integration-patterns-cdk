@@ -25,15 +25,9 @@
   "bugs": {
     "url": "https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk/issues"
   },
+  "private": true,
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
-  "files": [
-    "dist/lib/**/*.js",
-    "dist/lib/**/*.d.ts",
-    "README.md",
-    "LICENSE",
-    "NOTICE"
-  ],
   "engines": {
     "node": ">=20"
   },
@@ -50,7 +44,7 @@
     "security:audit": "npm audit --json > npm-audit-output.json; npm audit",
     "security:nag": "cdk synth --quiet --app \"ts-node -T security/cdk-nag-app.ts\" -o nag.out",
     "security:nag:summary": "npm run security:nag && node security/summarize-nag.mjs nag.out --csv nag.out/cdk-nag-all-stacks.csv",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "node -e \"console.error('This is aws-samples sample code and is not published to a package registry. Consume it by vendoring lib/ or installing from the Git URL; see README.'); process.exit(1)\""
   },
   "peerDependencies": {
     "aws-cdk-lib": "^2.170.0",

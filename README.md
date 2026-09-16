@@ -39,8 +39,16 @@ npx cdk synth
 npx cdk deploy
 ```
 
-To consume the library from your own CDK app instead, install it and import from the package root.
-`aws-cdk-lib` and `constructs` are peer dependencies, so your app supplies them.
+This is sample code and is not published to the npm registry. To use the constructs from your own
+CDK app, take one of two routes:
+
+- **Vendor the source.** Copy `lib/` into your project and import from it directly. You own the
+  code from that point and can adapt it freely; this is the intended way to consume a sample.
+- **Install from the Git URL.** `npm install github:aws-samples/sample-enterprise-integration-patterns-cdk`
+  pulls the repository as a dependency. Run `npm run build` inside it once so `dist/` exists, then
+  import from the package root.
+
+Either way, `aws-cdk-lib` and `constructs` are peer dependencies, so your app supplies them.
 
 ## Prerequisites
 
