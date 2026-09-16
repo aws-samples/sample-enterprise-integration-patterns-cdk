@@ -2,7 +2,7 @@
   "name": "sample-enterprise-integration-patterns-cdk",
   "version": "1.0.0",
   "description": "AWS CDK constructs for Enterprise Integration Patterns",
-  "license": "Apache-2.0",
+  "license": "MIT-0",
   "author": "Amazon Web Services",
   "keywords": [
     "aws",

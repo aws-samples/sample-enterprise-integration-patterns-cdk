@@ -1,7 +1,7 @@
 ---
 name: eip-cdk-patterns
 description: Select, configure and compose AWS CDK constructs for Enterprise Integration Patterns from this library. Use when building an integration on AWS, choosing between API / event-driven / streaming / file-based approaches, picking a messaging or orchestration pattern, wiring pub-sub, request-reply, saga, scatter-gather, claim-check, outbox, idempotency, circuit-breaker, throttling or managed file transfer, deciding between Lambda and ECS Fargate for an integration, or reviewing an integration design against AWS anti-patterns. Also use when asked which construct to use, how to configure one, or how to replace a legacy BizTalk / Workato / MuleSoft interface with AWS serverless.
-license: Apache-2.0
+license: MIT-0
 metadata:
   version: 1.0.0
   repository: sample-enterprise-integration-patterns-cdk

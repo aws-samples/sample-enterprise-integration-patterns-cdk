@@ -1,7 +1,7 @@
 ---
 name: integration-discovery
 description: Run a discovery conversation with an integration team, architect or developer who is new to this construct library. Use when someone asks where to start, wants an introduction to the library, is assessing or inventorying existing integrations, is planning a migration off BizTalk, MuleSoft, Boomi, TIBCO, Informatica, Workato or a legacy SFTP/JMS estate, or describes an interface in their own platform's vocabulary and needs it mapped to AWS serverless services and a construct. Use before eip-cdk-patterns whenever the requirement has not yet been stated in AWS terms.
-license: Apache-2.0
+license: MIT-0
 metadata:
   version: 1.0.0
   repository: sample-enterprise-integration-patterns-cdk

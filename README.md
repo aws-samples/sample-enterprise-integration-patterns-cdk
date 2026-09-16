@@ -1793,4 +1793,4 @@ For security issues, do not open a public issue — follow the
 
 ## License
 
-Apache-2.0
+This library is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file.
