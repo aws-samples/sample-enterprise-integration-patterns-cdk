@@ -83,4 +83,42 @@ describe('PublishSubscribeMq', () => {
     const stack = setup();
     assertAllQueuesSecure(templateOf(stack));
   });
+
+  // Lambda rejects CreateEventSourceMapping for an MQ source unless the execution
+  // role can describe the broker and manage ENIs in its VPC. The mapping resource
+  // existing in the template is not enough; this pins the permissions it needs.
+  test('subscriber role can describe the broker and manage VPC ENIs', () => {
+    const t = templateOf(setup());
+    const policies = t.findResources('AWS::IAM::Policy');
+    const statements = Object.values(policies).flatMap(
+      (p: any) => p.Properties?.PolicyDocument?.Statement ?? [],
+    );
+    const actions = new Set<string>(
+      statements.flatMap((s: any) => (Array.isArray(s.Action) ? s.Action : [s.Action])),
+    );
+    for (const required of [
+      'mq:DescribeBroker',
+      'ec2:CreateNetworkInterface',
+      'ec2:DeleteNetworkInterface',
+      'ec2:DescribeNetworkInterfaces',
+      'ec2:DescribeSecurityGroups',
+      'ec2:DescribeSubnets',
+      'ec2:DescribeVpcs',
+    ]) {
+      expect(actions).toContain(required);
+    }
+  });
+
+  test('mq:DescribeBroker is scoped to this broker, not a wildcard', () => {
+    const t = templateOf(setup());
+    const policies = t.findResources('AWS::IAM::Policy');
+    const describeStmt = Object.values(policies)
+      .flatMap((p: any) => p.Properties?.PolicyDocument?.Statement ?? [])
+      .find((s: any) => {
+        const acts = Array.isArray(s.Action) ? s.Action : [s.Action];
+        return acts.includes('mq:DescribeBroker');
+      });
+    expect(describeStmt).toBeDefined();
+    expect(describeStmt.Resource).not.toBe('*');
+  });
 });

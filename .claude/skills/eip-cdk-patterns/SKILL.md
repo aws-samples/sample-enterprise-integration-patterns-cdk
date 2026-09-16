@@ -4,7 +4,7 @@ description: Select, configure and compose AWS CDK constructs for Enterprise Int
 license: Apache-2.0
 metadata:
   version: 1.0.0
-  repository: aws-enterprise-integration-patterns
+  repository: sample-enterprise-integration-patterns-cdk
   constructs: 29
 ---
 

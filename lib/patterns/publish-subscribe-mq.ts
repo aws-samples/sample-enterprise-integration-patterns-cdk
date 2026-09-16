@@ -4,6 +4,7 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaEvents from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import {
@@ -121,6 +122,32 @@ export class PublishSubscribeMq extends Construct {
       this.subscriberFunctions.push(fn);
       this.responseQueue.grantSendMessages(fn);
       props.brokerSecret.grantRead(fn);
+
+      // Lambda's Amazon MQ event source polls the broker on the function's behalf
+      // and needs to describe it and manage ENIs in the broker's VPC. Without these,
+      // CreateEventSourceMapping is rejected at deploy time. The secret read above
+      // covers secretsmanager:GetSecretValue; these are the rest of the documented set:
+      // https://docs.aws.amazon.com/lambda/latest/dg/process-mq-messages-with-lambda.html
+      fn.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ['mq:DescribeBroker'],
+          resources: [this.broker.attrArn],
+        }),
+      );
+      fn.addToRolePolicy(
+        new iam.PolicyStatement({
+          // ENI lifecycle actions do not support resource-level scoping.
+          actions: [
+            'ec2:CreateNetworkInterface',
+            'ec2:DeleteNetworkInterface',
+            'ec2:DescribeNetworkInterfaces',
+            'ec2:DescribeSecurityGroups',
+            'ec2:DescribeSubnets',
+            'ec2:DescribeVpcs',
+          ],
+          resources: ['*'],
+        }),
+      );
 
       // CDK's L2 EventSourceMapping does not expose Queues for Amazon MQ. Wire the L1.
       new lambda.CfnEventSourceMapping(this, `${sub.name}MqMapping`, {

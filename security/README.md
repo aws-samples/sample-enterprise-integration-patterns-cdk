@@ -46,7 +46,7 @@ expected to close them for their own environment:
 
 | Rule | What it wants | Why it is still open |
 |---|---|---|
-| `IAM4` / `IAM5` | No AWS managed policies, no wildcard resources | Produced by CDK's own `grant*` helpers and service roles |
+| `IAM4` / `IAM5` | No AWS managed policies, no wildcard resources | Produced by CDK's own `grant*` helpers and service roles. One deliberate wildcard: `PublishSubscribeMq` grants the six `ec2:*NetworkInterface*`/`ec2:Describe*` actions Lambda's MQ event source requires on `*`, because those actions do not support resource-level scoping |
 | `SQS3` | Every queue has a DLQ | Fires on the DLQs themselves, which by definition have none |
 | `COG4` | A Cognito user pool authorizer | The API patterns default to IAM auth; Cognito is a consumer choice |
 | `APIG1` / `APIG6` | Access and execution logging | Log destinations are account-specific |
