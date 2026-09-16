@@ -12,6 +12,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface SagaStep {
@@ -63,6 +64,7 @@ export class SagaChoreography extends Construct {
       });
       this.queues.push(
         new sqs.Queue(this, `${step.name}Queue`, {
+          visibilityTimeout: queueVisibilityFor(timeout),
           deadLetterQueue: { queue: dlq, maxReceiveCount: maxReceive },
           removalPolicy: removal,
           enforceSSL: true,
@@ -78,6 +80,7 @@ export class SagaChoreography extends Construct {
       });
       this.compensationQueues.push(
         new sqs.Queue(this, `${step.name}CompQueue`, {
+          visibilityTimeout: queueVisibilityFor(timeout),
           deadLetterQueue: { queue: compDlq, maxReceiveCount: maxReceive },
           removalPolicy: removal,
           enforceSSL: true,

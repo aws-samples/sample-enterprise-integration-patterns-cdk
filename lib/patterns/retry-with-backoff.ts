@@ -48,6 +48,22 @@ export class RetryWithBackoff extends Construct {
     const multiplier = props.backoffMultiplier ?? 2;
     const max = props.maxVisibilityTimeoutSeconds ?? 900;
     const attempts = props.maxAttempts ?? dlqMaxReceive(props);
+    const timeout = props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT;
+
+    // Here the queue's visibility timeout is the first step of the retry schedule,
+    // so it is set by the caller rather than derived from the Lambda timeout as the
+    // other SQS-fed patterns do. That means the two can disagree. Lambda requires
+    // function timeout <= queue visibility timeout and rejects the event source
+    // mapping at deploy time otherwise, with an error that names neither prop.
+    // Refuse at synth instead, naming both.
+    if (timeout.toSeconds() > initial) {
+      throw new Error(
+        `RetryWithBackoff: lambdaTimeout (${timeout.toSeconds()}s) exceeds ` +
+          `initialVisibilityTimeoutSeconds (${initial}s). Lambda rejects an SQS event source ` +
+          'whose function timeout is longer than the queue visibility timeout. Raise ' +
+          'initialVisibilityTimeoutSeconds to at least the Lambda timeout (AWS recommends 6x).',
+      );
+    }
 
     this.dlq = new sqs.Queue(this, 'DLQ', {
       retentionPeriod: dlqRetention(props),
@@ -67,7 +83,7 @@ export class RetryWithBackoff extends Construct {
       runtime: props.workerRuntime ?? DEFAULT_LAMBDA_RUNTIME,
       handler: props.workerHandler,
       code: props.workerCode,
-      timeout: props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT,
+      timeout,
       logRetention: props.logRetention ?? DEFAULT_LOG_RETENTION,
       environment: {
         QUEUE_URL: this.inputQueue.queueUrl,

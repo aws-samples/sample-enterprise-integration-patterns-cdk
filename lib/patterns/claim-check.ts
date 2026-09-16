@@ -11,6 +11,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface ClaimCheckProps extends BasePatternProps {
@@ -54,6 +55,7 @@ export class ClaimCheck extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.inputQueue = new sqs.Queue(this, 'InputQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,

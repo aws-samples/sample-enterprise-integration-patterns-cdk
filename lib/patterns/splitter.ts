@@ -12,6 +12,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface SplitterProps extends BasePatternProps {
@@ -41,6 +42,7 @@ export class Splitter extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.inputQueue = new sqs.Queue(this, 'InputQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,

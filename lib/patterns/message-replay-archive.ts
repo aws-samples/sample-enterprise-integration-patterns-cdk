@@ -15,6 +15,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface MessageReplayArchiveProps extends BasePatternProps {
@@ -85,6 +86,7 @@ export class MessageReplayArchive extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     const archiveQueue = new sqs.Queue(this, 'ArchiveQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: archiveDlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,

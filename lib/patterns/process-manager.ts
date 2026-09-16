@@ -12,6 +12,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface ProcessManagerStep {
@@ -58,6 +59,7 @@ export class ProcessManager extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.stateQueue = new sqs.Queue(this, 'StateQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: this.stateDlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,
