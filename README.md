@@ -39,8 +39,16 @@ npx cdk synth
 npx cdk deploy
 ```
 
-To consume the library from your own CDK app instead, install it and import from the package root.
-`aws-cdk-lib` and `constructs` are peer dependencies, so your app supplies them.
+This is sample code and is not published to the npm registry. To use the constructs from your own
+CDK app, take one of two routes:
+
+- **Vendor the source.** Copy `lib/` into your project and import from it directly. You own the
+  code from that point and can adapt it freely; this is the intended way to consume a sample.
+- **Install from the Git URL.** `npm install github:aws-samples/sample-enterprise-integration-patterns-cdk`
+  pulls the repository as a dependency. Run `npm run build` inside it once so `dist/` exists, then
+  import from the package root.
+
+Either way, `aws-cdk-lib` and `constructs` are peer dependencies, so your app supplies them.
 
 ## Prerequisites
 
@@ -1657,7 +1665,7 @@ All constructs accept `BasePatternProps`:
 | `logRetention` | `logs.RetentionDays` | `ONE_MONTH` | CloudWatch log retention applied to every Lambda |
 | `lambdaTimeout` | `Duration` | `30s` | Default Lambda timeout for functions created by the pattern |
 
-All SQS queues are `SQS_MANAGED` encrypted with `enforceSSL: true`. All S3 buckets are `BLOCK_ALL` public access, `S3_MANAGED` encrypted, with `enforceSSL: true`. SNS topics use `enforceSSL: true`. DynamoDB tables enable point-in-time recovery. AppSync defaults to `IAM` auth; API Gateway endpoints created by `ContentEnricher`/`MessageReplayArchive` default to `IAM` auth unless an authorizer is supplied.
+All SQS queues are `SQS_MANAGED` encrypted with `enforceSSL: true`. All S3 buckets are `BLOCK_ALL` public access, `S3_MANAGED` encrypted, with `enforceSSL: true`. SNS topics use `enforceSSL: true`. DynamoDB tables enable point-in-time recovery. AppSync defaults to `IAM` auth; API Gateway endpoints created by `ContentEnricher`, `MessageReplayArchive` and `Throttling` default to `IAM` auth unless an authorizer is supplied. `ApiCompositionApollo` keeps its load balancer internal unless `publicLoadBalancer: true` is set together with a `certificate`.
 
 ## Pattern Selection Guide
 
@@ -1707,6 +1715,12 @@ Contributions are welcome — new patterns, bug fixes, doc improvements, and add
 ├── test/
 │   ├── unit/           # Tier 1 — fast aws-cdk-lib/assertions tests
 │   └── integ/          # Tier 2 — opt-in real-deploy integration tests
+├── security/           # cdk-nag harness + summariser — `npm run security:nag:summary`
+├── skills/             # Canonical Agent Skills — edit these, not .kiro/ or .claude/
+├── agents/             # Canonical agent prompts + per-tool targets
+├── scripts/            # sync-agent-config.mjs — regenerates .kiro/ and .claude/
+├── .kiro/ .claude/     # Generated from skills/ and agents/ — do not edit
+├── .github/workflows/  # CI: check:agents, build, unit tests
 ├── package.json
 ├── tsconfig.json
 └── jest.config.ts
@@ -1715,14 +1729,14 @@ Contributions are welcome — new patterns, bug fixes, doc improvements, and add
 ### Local development
 
 ```bash
-git clone https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk-skill-agent.git
-cd sample-enterprise-integration-patterns-cdk-skill-agent
+git clone https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk.git
+cd sample-enterprise-integration-patterns-cdk
 npm ci
 npm run build      # tsc — must pass before opening a PR
 npm test           # Tier 1 unit tests — required on every PR
 ```
 
-**Requirements:** Node.js 18+, AWS CDK CLI v2, TypeScript 5.x.
+**Requirements:** Node.js 20+, AWS CDK CLI v2, TypeScript 5.x.
 
 ### Tests
 
@@ -1779,4 +1793,4 @@ For security issues, do not open a public issue — follow the
 
 ## License
 
-Apache-2.0
+This library is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file.

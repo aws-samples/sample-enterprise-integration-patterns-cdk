@@ -20,6 +20,13 @@ cdk.context.json
 coverage/
 .nyc_output/
 
+# Security scan output. Regenerate with `npm run security:nag:summary` and
+# `npm run security:audit` rather than committing a snapshot that goes stale —
+# the harness in security/ is the reproducible part.
+nag.out/
+npm-audit-output.json
+security-review-output/
+
 # IDE
 .vscode/
 .idea/

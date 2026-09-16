@@ -22,6 +22,17 @@ export interface ThrottlingProps extends BasePatternProps {
   workerReservedConcurrency: number;
   /** Optional API Gateway facade with a usage plan. */
   createApi?: boolean;
+  /**
+   * Authorizer for the optional API facade. When set, the method uses CUSTOM
+   * authorization and this authorizer.
+   */
+  apiAuthorizer?: apigateway.IAuthorizer;
+  /**
+   * When createApi is true and no authorizer is set, authorization defaults to
+   * IAM. An API key is a usage-plan identifier, not an authentication mechanism,
+   * so the facade is never left unauthenticated by default.
+   */
+  apiAuthorizationType?: apigateway.AuthorizationType;
   /** Steady-state requests per second for the API usage plan. */
   rateLimitRps?: number;
   /** Burst capacity for the API usage plan. */
@@ -83,11 +94,18 @@ export class Throttling extends Construct {
       this.api = new apigateway.RestApi(this, 'Facade', {
         deployOptions: { tracingEnabled: true },
       });
+      // The API key gates the usage plan and quota; it is not authentication.
+      // Authorization is separate and defaults to IAM, matching ContentEnricher
+      // and MessageReplayArchive.
+      const authorizationType = props.apiAuthorizer
+        ? apigateway.AuthorizationType.CUSTOM
+        : props.apiAuthorizationType ?? apigateway.AuthorizationType.IAM;
       this.api.root
         .addResource('invoke')
         .addMethod('POST', new apigateway.LambdaIntegration(this.worker), {
           apiKeyRequired: true,
-          authorizationType: apigateway.AuthorizationType.NONE,
+          authorizationType,
+          authorizer: props.apiAuthorizer,
         });
 
       const key = this.api.addApiKey('DefaultKey');

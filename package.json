@@ -1,8 +1,8 @@
 {
-  "name": "aws-enterprise-integration-patterns",
+  "name": "sample-enterprise-integration-patterns-cdk",
   "version": "1.0.0",
   "description": "AWS CDK constructs for Enterprise Integration Patterns",
-  "license": "Apache-2.0",
+  "license": "MIT-0",
   "author": "Amazon Web Services",
   "keywords": [
     "aws",
@@ -19,21 +19,15 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/aws-samples/enterprise-integration-on-aws-v2-cdk-constructs.git"
+    "url": "https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk.git"
   },
-  "homepage": "https://github.com/aws-samples/enterprise-integration-on-aws-v2-cdk-constructs#readme",
+  "homepage": "https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk#readme",
   "bugs": {
-    "url": "https://github.com/aws-samples/enterprise-integration-on-aws-v2-cdk-constructs/issues"
+    "url": "https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk/issues"
   },
+  "private": true,
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
-  "files": [
-    "dist/lib/**/*.js",
-    "dist/lib/**/*.d.ts",
-    "README.md",
-    "LICENSE",
-    "NOTICE"
-  ],
   "engines": {
     "node": ">=20"
   },
@@ -47,7 +41,10 @@
     "test:coverage": "jest --testPathPattern=test/unit --coverage",
     "sync:agents": "node scripts/sync-agent-config.mjs",
     "check:agents": "node scripts/sync-agent-config.mjs --check",
-    "prepublishOnly": "npm run build && npm test"
+    "security:audit": "npm audit --json > npm-audit-output.json; npm audit",
+    "security:nag": "cdk synth --quiet --app \"ts-node -T security/cdk-nag-app.ts\" -o nag.out",
+    "security:nag:summary": "npm run security:nag && node security/summarize-nag.mjs nag.out --csv nag.out/cdk-nag-all-stacks.csv",
+    "prepublishOnly": "node -e \"console.error('This is aws-samples sample code and is not published to a package registry. Consume it by vendoring lib/ or installing from the Git URL; see README.'); process.exit(1)\""
   },
   "peerDependencies": {
     "aws-cdk-lib": "^2.170.0",
@@ -62,8 +59,10 @@
     "@types/node": "^20.0.0",
     "aws-cdk": "^2.170.0",
     "aws-cdk-lib": "2.266.0",
+    "cdk-nag": "^2.38.2",
     "constructs": "10.8.1",
     "jest": "^29.7.0",
+    "source-map-support": "^0.5.21",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "~5.6.0"
