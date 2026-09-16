@@ -11,6 +11,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface AggregatorProps extends BasePatternProps {
@@ -44,6 +45,7 @@ export class Aggregator extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.ingestQueue = new sqs.Queue(this, 'IngestQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,

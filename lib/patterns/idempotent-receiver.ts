@@ -11,6 +11,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface IdempotentReceiverProps extends BasePatternProps {
@@ -43,6 +44,7 @@ export class IdempotentReceiver extends Construct {
   constructor(scope: Construct, id: string, props: IdempotentReceiverProps) {
     super(scope, id);
     const removal = props.removalPolicy ?? RemovalPolicy.DESTROY;
+    const timeout = props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT;
     const idAttr = props.idAttributeName ?? 'messageId';
 
     this.dlq = new sqs.Queue(this, 'DLQ', {
@@ -52,6 +54,7 @@ export class IdempotentReceiver extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.inputQueue = new sqs.Queue(this, 'InputQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: this.dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,
@@ -70,7 +73,7 @@ export class IdempotentReceiver extends Construct {
       runtime: props.runtime ?? DEFAULT_LAMBDA_RUNTIME,
       handler: props.handler,
       code: props.code,
-      timeout: props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT,
+      timeout,
       logRetention: props.logRetention ?? DEFAULT_LOG_RETENTION,
       environment: {
         DEDUP_TABLE: this.dedupTable.tableName,

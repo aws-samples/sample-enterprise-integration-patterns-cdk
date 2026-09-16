@@ -11,6 +11,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface RequestReplyLargePayloadProps extends BasePatternProps {
@@ -32,6 +33,7 @@ export class RequestReplyLargePayload extends Construct {
   constructor(scope: Construct, id: string, props: RequestReplyLargePayloadProps) {
     super(scope, id);
     const removal = props.removalPolicy ?? RemovalPolicy.DESTROY;
+    const timeout = props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT;
     const maxReceive = dlqMaxReceive(props);
     const retention = dlqRetention(props);
 
@@ -59,6 +61,7 @@ export class RequestReplyLargePayload extends Construct {
     });
 
     this.requestQueue = new sqs.Queue(this, 'RequestQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: this.requestDlq, maxReceiveCount: maxReceive },
       removalPolicy: removal,
       enforceSSL: true,
@@ -75,7 +78,7 @@ export class RequestReplyLargePayload extends Construct {
       runtime: props.consumerRuntime ?? DEFAULT_LAMBDA_RUNTIME,
       handler: props.consumerHandler,
       code: props.consumerCode,
-      timeout: props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT,
+      timeout,
       logRetention: props.logRetention ?? DEFAULT_LOG_RETENTION,
       environment: {
         REPLY_QUEUE_URL: this.replyQueue.queueUrl,

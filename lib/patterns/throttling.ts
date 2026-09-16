@@ -11,6 +11,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface ThrottlingProps extends BasePatternProps {
@@ -68,7 +69,9 @@ export class Throttling extends Construct {
       enforceSSL: true,
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
+    const timeout = props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT;
     this.inputQueue = new sqs.Queue(this, 'InputQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: this.dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,
@@ -79,7 +82,7 @@ export class Throttling extends Construct {
       runtime: props.workerRuntime ?? DEFAULT_LAMBDA_RUNTIME,
       handler: props.workerHandler,
       code: props.workerCode,
-      timeout: props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT,
+      timeout,
       logRetention: props.logRetention ?? DEFAULT_LOG_RETENTION,
       reservedConcurrentExecutions: props.workerReservedConcurrency,
     });
