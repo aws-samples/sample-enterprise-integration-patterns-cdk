@@ -12,9 +12,14 @@ export interface ApiCompositionApolloProps extends BasePatternProps {
   cpu?: number;
   memoryLimitMiB?: number;
   desiredCount?: number;
-  /** When provided, the load balancer terminates HTTPS and redirects HTTP→HTTPS. Strongly recommended for any non-internal exposure. */
+  /** When provided, the load balancer terminates HTTPS and redirects HTTP→HTTPS. Required when publicLoadBalancer is true. */
   certificate?: acm.ICertificate;
-  /** Default: true. Set false to keep the gateway internal — recommended unless edge auth is in front. */
+  /**
+   * Default: false — the gateway is internal to the VPC.
+   *
+   * Setting this to true requires a `certificate`; synthesis fails otherwise,
+   * because an internet-facing listener without one serves plaintext GraphQL.
+   */
   publicLoadBalancer?: boolean;
 }
 
@@ -24,7 +29,17 @@ export class ApiCompositionApollo extends Construct {
   constructor(scope: Construct, id: string, props: ApiCompositionApolloProps) {
     super(scope, id);
 
-    const publicLoadBalancer = props.publicLoadBalancer ?? true;
+    // Internal by default. An internet-facing ALB without a certificate would
+    // serve unencrypted GraphQL to the world, so that combination is refused
+    // rather than silently deployed.
+    const publicLoadBalancer = props.publicLoadBalancer ?? false;
+    if (publicLoadBalancer && !props.certificate) {
+      throw new Error(
+        'ApiCompositionApollo: publicLoadBalancer is true but no certificate was supplied, ' +
+          'which would expose the Apollo gateway over plaintext HTTP. Pass a `certificate` to ' +
+          'terminate HTTPS, or leave publicLoadBalancer unset to keep the gateway internal.',
+      );
+    }
 
     this.service = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'Gateway', {
       vpc: props.vpc,
