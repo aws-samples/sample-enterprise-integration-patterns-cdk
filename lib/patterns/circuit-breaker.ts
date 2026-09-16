@@ -11,6 +11,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface CircuitBreakerProps extends BasePatternProps {
@@ -46,6 +47,7 @@ export class CircuitBreaker extends Construct {
   constructor(scope: Construct, id: string, props: CircuitBreakerProps) {
     super(scope, id);
     const removal = props.removalPolicy ?? RemovalPolicy.DESTROY;
+    const timeout = props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT;
 
     this.dlq = new sqs.Queue(this, 'DLQ', {
       retentionPeriod: dlqRetention(props),
@@ -54,6 +56,7 @@ export class CircuitBreaker extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.inputQueue = new sqs.Queue(this, 'InputQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: this.dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,
@@ -72,7 +75,7 @@ export class CircuitBreaker extends Construct {
       runtime: props.runtime ?? DEFAULT_LAMBDA_RUNTIME,
       handler: props.handler,
       code: props.code,
-      timeout: props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT,
+      timeout,
       logRetention: props.logRetention ?? DEFAULT_LOG_RETENTION,
       environment: {
         BREAKER_TABLE: this.stateTable.tableName,

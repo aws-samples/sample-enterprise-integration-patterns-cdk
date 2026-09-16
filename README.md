@@ -1663,7 +1663,7 @@ All constructs accept `BasePatternProps`:
 | `deadLetterQueue.maxReceiveCount` | `number` | `3` | Max receives before sending to DLQ (honoured across all patterns) |
 | `deadLetterQueue.retentionPeriodDays` | `number` | `14` | DLQ message retention (honoured across all patterns) |
 | `logRetention` | `logs.RetentionDays` | `ONE_MONTH` | CloudWatch log retention applied to every Lambda |
-| `lambdaTimeout` | `Duration` | `30s` | Default Lambda timeout for functions created by the pattern |
+| `lambdaTimeout` | `Duration` | `30s` | Default Lambda timeout for functions created by the pattern. Every SQS queue that feeds a Lambda gets a visibility timeout of 6× this value automatically (the AWS-recommended ratio), so raising it never trips Lambda's "function timeout must not exceed queue visibility timeout" check at deploy. `RetryWithBackoff` is the exception: its visibility timeout is the retry schedule (`initialVisibilityTimeoutSeconds`), so it fails synth with a clear message if you set `lambdaTimeout` higher than that. |
 
 All SQS queues are `SQS_MANAGED` encrypted with `enforceSSL: true`. All S3 buckets are `BLOCK_ALL` public access, `S3_MANAGED` encrypted, with `enforceSSL: true`. SNS topics use `enforceSSL: true`. DynamoDB tables enable point-in-time recovery. AppSync defaults to `IAM` auth; API Gateway endpoints created by `ContentEnricher`, `MessageReplayArchive` and `Throttling` default to `IAM` auth unless an authorizer is supplied. `ApiCompositionApollo` keeps its load balancer internal unless `publicLoadBalancer: true` is set together with a `certificate`.
 

@@ -10,6 +10,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface MessageTranslatorProps extends BasePatternProps {
@@ -44,6 +45,7 @@ export class MessageTranslator extends Construct {
   constructor(scope: Construct, id: string, props: MessageTranslatorProps) {
     super(scope, id);
     const removal = props.removalPolicy ?? RemovalPolicy.DESTROY;
+    const timeout = props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT;
 
     const dlq = new sqs.Queue(this, 'DLQ', {
       retentionPeriod: dlqRetention(props),
@@ -52,6 +54,7 @@ export class MessageTranslator extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.inputQueue = new sqs.Queue(this, 'InputQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,
@@ -67,7 +70,7 @@ export class MessageTranslator extends Construct {
       runtime: props.runtime ?? DEFAULT_LAMBDA_RUNTIME,
       handler: props.translatorHandler,
       code: props.translatorCode,
-      timeout: props.lambdaTimeout ?? DEFAULT_LAMBDA_TIMEOUT,
+      timeout,
       logRetention: props.logRetention ?? DEFAULT_LOG_RETENTION,
       environment: {
         OUTPUT_QUEUE_URL: this.outputQueue.queueUrl,

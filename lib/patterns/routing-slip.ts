@@ -12,6 +12,7 @@ import {
   DEFAULT_LOG_RETENTION,
   dlqMaxReceive,
   dlqRetention,
+  queueVisibilityFor,
 } from '../types';
 
 export interface RoutingSlipStep {
@@ -64,6 +65,7 @@ export class RoutingSlip extends Construct {
       encryption: sqs.QueueEncryption.SQS_MANAGED,
     });
     this.entryQueue = new sqs.Queue(this, 'EntryQueue', {
+      visibilityTimeout: queueVisibilityFor(timeout),
       deadLetterQueue: { queue: this.dlq, maxReceiveCount: dlqMaxReceive(props) },
       removalPolicy: removal,
       enforceSSL: true,
