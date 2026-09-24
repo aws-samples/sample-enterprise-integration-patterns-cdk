@@ -97,6 +97,14 @@ the second if you already know what you are building:
 - **`eip-architect`** picks that assessment up and writes the CDK declarations that instantiate the
   right library constructs with the correct configuration for each pattern, then verifies them.
 
+**Want to see it run before trying it on your own estate?**
+[`examples/path-2-with-agents/`](examples/path-2-with-agents/README.md) is a scripted, 25-minute
+walkthrough: five BizTalk interfaces at a fictional retailer, ten prompts you type, and what each
+agent does in response. It covers the handoff between the two agents, a contrast pair (two BizTalk
+orchestrations that map to different constructs on one answer), a three-construct composition, and
+the moment the architect refuses to deploy. Swap in your own interfaces at Prompt 3 to use it as a
+template for a real engagement.
+
 The [Use with an AI coding agent](#use-with-an-ai-coding-agent) section below covers the agents in
 depth: which to start with, what each produces, and how to run them in each tool.
 
@@ -1777,6 +1785,7 @@ Contributions are welcome — new patterns, bug fixes, doc improvements, and add
 │   ├── unit/           # Tier 1 — fast aws-cdk-lib/assertions tests
 │   └── integ/          # Tier 2 — opt-in real-deploy integration tests
 ├── security/           # cdk-nag harness + summariser — `npm run security:nag:summary`
+├── examples/           # Scripted walkthroughs — path-2-with-agents/ is the five-interface BizTalk demo
 ├── skills/             # Canonical Agent Skills — edit these, not .kiro/ or .claude/
 ├── agents/             # Canonical agent prompts + per-tool targets
 ├── scripts/            # sync-agent-config.mjs — regenerates .kiro/ and .claude/
