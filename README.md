@@ -22,25 +22,103 @@ file; `eip-architect` picks that assessment up and writes the CDK against the re
 See [Use with an AI coding agent](#use-with-an-ai-coding-agent) — it works from a plain clone, with no
 install or configuration step.
 
-## Quick Start
+## Prerequisites
+
+- An AWS account with the AWS CDK bootstrapped in your target Region
+- Node.js 20+
+- AWS CDK CLI v2
+- AWS credentials configured
+- TypeScript 5.x
+- For Path 2 below, [Kiro](https://kiro.dev) or Claude Code
+
+Running the test suite on a memory-constrained machine? Each Jest worker loads its own copy of
+`aws-cdk-lib`, so use `npm test -- --runInBand` for a fully serial run.
+
+## Getting Started
+
+There are two ways to go from a requirement to a deployed pattern.
+
+**Path 1 is hands-on:** you write the construct declaration and run the CDK commands yourself.
+**Path 2 is agent-assisted:** the agents shipped in this repository select and configure the
+construct for you, and you run the final deploy.
+
+Both produce the same thing — a small `bin/app.ts` that instantiates one or more of the 29 library
+constructs — so the security posture is identical whichever you choose. Start with Path 1 if you
+already know which pattern you need. Start with Path 2 if you are coming from a legacy platform's
+vocabulary and want help mapping it.
+
+Both paths begin the same way:
 
 ```bash
+git clone https://github.com/aws-samples/sample-enterprise-integration-patterns-cdk.git
+cd sample-enterprise-integration-patterns-cdk
 npm ci
 npm run build
 npm test
 ```
 
-`bin/app.ts` is an empty app stub, so `npx cdk synth` on a fresh clone produces nothing by design.
-Add a construct to it — the [Implementation Guide](#implementation-guide) has worked examples — then
-synth and deploy:
+This repository is a construct library, not a deployable application. `bin/app.ts` ships as an
+empty stub, and `npx cdk synth` on a fresh clone produces no stacks by design.
+
+### Path 1: declare a pattern yourself
+
+Open `bin/app.ts` and declare the construct you need. The [Implementation Guide](#implementation-guide)
+has worked examples for request-reply, publish-subscribe, scatter-gather and saga. Then synthesize
+and deploy:
 
 ```bash
 npx cdk synth
 npx cdk deploy
 ```
 
-This is sample code and is not published to the npm registry. To use the constructs from your own
-CDK app, take one of two routes:
+`npm run build` type-checks your declaration against the construct's real `*Props` interface, and
+`cdk synth` confirms it produces valid CloudFormation, so a wrong prop name fails before anything
+reaches your account. `npm test` exercises the 29 library constructs themselves rather than your
+declaration; it confirms the library is intact.
+
+### Path 2: let the agents do the selection and configuration
+
+Open the repository in Kiro or Claude Code. In Kiro, pick the agent from the bottom bar of the chat
+input; in Claude Code, ask it to delegate, for example *"use the eip-architect agent to design the
+order export interface."*
+
+Describe the integration requirement in your own terms. The agent selects the right construct from
+the library, writes the declaration into `bin/app.ts` with correctly configured props, and validates
+it with `npm run build`, `npm test` and `cdk synth`. Deployment stays with you: the shipped
+`eip-architect` agent is denied `cdk deploy` and `cdk destroy` by design, so nothing reaches an
+account without a human running it. When the agent reports the declaration ready, you run the same
+two commands as Path 1.
+
+The repo ships two Agent Skills and two custom agents for this. Use them in order, or go straight to
+the second if you already know what you are building:
+
+- **`integration-advisor`** runs discovery. It asks the questions, maps each of your existing
+  interfaces to a construct, and writes an assessment file. It touches no code.
+- **`eip-architect`** picks that assessment up and writes the CDK declarations that instantiate the
+  right library constructs with the correct configuration for each pattern, then verifies them.
+
+**Want to see it run before trying it on your own estate?**
+[`examples/path-2-with-agents/`](examples/path-2-with-agents/README.md) is a scripted, 25-minute
+walkthrough: five BizTalk interfaces at a fictional retailer, ten prompts you type, and what each
+agent does in response. It covers the handoff between the two agents, a contrast pair (two BizTalk
+orchestrations that map to different constructs on one answer), a three-construct composition, and
+the moment the architect refuses to deploy. Swap in your own interfaces at Prompt 3 to use it as a
+template for a real engagement.
+
+The [Use with an AI coding agent](#use-with-an-ai-coding-agent) section below covers the agents in
+depth: which to start with, what each produces, and how to run them in each tool.
+
+### Clean up
+
+Remove anything you deployed with `npx cdk destroy`. The constructs default to
+`RemovalPolicy.DESTROY`, so the queues, tables and buckets a pattern created are removed with the
+stack.
+
+### Using the constructs in your own CDK app
+
+`bin/app.ts` is a convenient place to try a pattern. For your own platform you will not build inside
+a clone of this repository; bring the constructs into your own CDK application instead. This is
+sample code and is not published to the npm registry, so take one of two routes:
 
 - **Vendor the source.** Copy `lib/` into your project and import from it directly. You own the
   code from that point and can adapt it freely; this is the intended way to consume a sample.
@@ -48,17 +126,8 @@ CDK app, take one of two routes:
   pulls the repository as a dependency. Run `npm run build` inside it once so `dist/` exists, then
   import from the package root.
 
-Either way, `aws-cdk-lib` and `constructs` are peer dependencies, so your app supplies them.
-
-## Prerequisites
-
-- Node.js 20+
-- AWS CDK CLI v2
-- AWS credentials configured
-- TypeScript 5.x
-
-Running the test suite on a memory-constrained machine? Each Jest worker loads its own copy of
-`aws-cdk-lib`, so use `npm test -- --runInBand` for a fully serial run.
+Either way, `aws-cdk-lib` and `constructs` are peer dependencies, so your app supplies them. The
+agents work the same way in your repository as in this one.
 
 ## Use with an AI coding agent
 
@@ -1716,6 +1785,7 @@ Contributions are welcome — new patterns, bug fixes, doc improvements, and add
 │   ├── unit/           # Tier 1 — fast aws-cdk-lib/assertions tests
 │   └── integ/          # Tier 2 — opt-in real-deploy integration tests
 ├── security/           # cdk-nag harness + summariser — `npm run security:nag:summary`
+├── examples/           # Scripted walkthroughs — path-2-with-agents/ is the five-interface BizTalk demo
 ├── skills/             # Canonical Agent Skills — edit these, not .kiro/ or .claude/
 ├── agents/             # Canonical agent prompts + per-tool targets
 ├── scripts/            # sync-agent-config.mjs — regenerates .kiro/ and .claude/
