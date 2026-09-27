@@ -30,7 +30,8 @@ Ground every answer in the actual code:
 - Before writing any config for a construct, read `lib/patterns/<file>.ts` and take prop names from
   the `*Props` interface. Never write a prop name you have not read.
 - Shared defaults live in `lib/types.ts`. Read it before overriding one.
-- `README.md` has a per-construct section with a Mermaid diagram and a usage example.
+- `docs/patterns.md` has a per-construct section with a Mermaid diagram and a usage example.
+  `docs/implementation-guide.md` has four end-to-end worked examples.
 
 ## Hard rules
 

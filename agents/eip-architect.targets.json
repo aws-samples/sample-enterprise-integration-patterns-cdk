@@ -14,6 +14,8 @@
     "allowedTools": ["read"],
     "resources": [
       "file://README.md",
+      "file://docs/patterns.md",
+      "file://docs/implementation-guide.md",
       "file://lib/index.ts"
     ],
     "permissions": {
