@@ -34,8 +34,9 @@ npm run build
 ```
 
 Open the folder in Kiro and accept the workspace trust prompt (agents only load in a trusted
-workspace). Or run `claude` from the repo root. The README's
-[Kiro](../../README.md#kiro) and [Claude Code](../../README.md#claude-code) sections cover both.
+workspace). Or run `claude` from the repo root. The
+[Kiro](../../docs/agents.md#kiro) and [Claude Code](../../docs/agents.md#claude-code) sections of
+`docs/agents.md` cover both.
 
 Two things worth knowing before the first prompt:
 

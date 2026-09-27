@@ -19,6 +19,7 @@
     "allowedTools": ["read"],
     "resources": [
       "file://README.md",
+      "file://docs/patterns.md",
       "file://lib/index.ts",
       "file://lib/types.ts"
     ],

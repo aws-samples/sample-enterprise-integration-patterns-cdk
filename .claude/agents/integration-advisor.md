@@ -48,7 +48,7 @@ Ground everything in the actual code:
 - Before writing any config, read `lib/patterns/<file>.ts` and take prop names from the `*Props`
   interface. Never write a prop name you have not read.
 - Shared defaults are in `lib/types.ts`.
-- `README.md` has a per-construct section with a diagram and a usage example.
+- `docs/patterns.md` has a per-construct section with a diagram and a usage example.
 
 ## Hard rules
 
